@@ -8,6 +8,8 @@ using Routine.Api.Services;
 namespace Routine.Api.Controllers
 {
     [ApiController]
+    [Route("api/companies")]
+    // [Route("api/[controller]")]
     public class CompaniesController : ControllerBase
     {
         private readonly ICompanyRepository _companyRepository;
@@ -18,10 +20,24 @@ namespace Routine.Api.Controllers
                                  throw new ArgumentNullException(nameof(companyRepository));
         }
 
+        [HttpGet]
         public async Task<IActionResult> GetCompanies()
         {
             var companies = await _companyRepository.GetCompaniesAsync();
-            return new JsonResult(companies);
+            return Ok(companies);
+        }
+
+        [HttpGet("{companyId}")] // api/companies/123
+        // [Route("{companyId}")]
+        public async Task<IActionResult> GetCompany(Guid companyId)
+        {
+            var company = await _companyRepository.GetCompanyAsync(companyId);
+            if (company == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(company);
         }
     }
 }
