@@ -25,6 +25,7 @@ namespace Routine.Api.Controllers
         }
 
         [HttpGet]
+        [HttpHead]
         public async Task<ActionResult<IEnumerable<CompanyDto>>> GetCompanies()
         {
             var companies = await _companyRepository.GetCompaniesAsync();
