@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,7 +28,12 @@ namespace Routine.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers(setup =>
+            {
+                setup.ReturnHttpNotAcceptable = true; // 设为true的话，请求格式不匹配可以返回406状态码
+                //setup.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter()); // 在输出格式化器中添加xml格式化器，即增加返回类型为xml的支持，但默认格式依旧是Json，Add是Add到后面
+                // setup.OutputFormatters.Insert(0, new XmlDataContractSerializerOutputFormatter()); // 在第零个位置插入xml初始化器，即顺序变成了xml-json，默认的就是xml
+            }).AddXmlDataContractSerializerFormatters(); // 这句话包含第二条功能，还连input的格式化器也添加了
 
             services.AddScoped<ICompanyRepository,CompanyRepository>();
             services.AddDbContext<RoutineDbContext>(options => 
