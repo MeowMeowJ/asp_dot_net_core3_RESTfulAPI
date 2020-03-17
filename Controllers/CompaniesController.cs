@@ -22,7 +22,7 @@ namespace Routine.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCompanies()
+        public async Task<ActionResult<IEnumerable<CompanyDto>>> GetCompanies()
         {
             var companies = await _companyRepository.GetCompaniesAsync();
 
@@ -38,6 +38,8 @@ namespace Routine.Api.Controllers
             }
 
             return Ok(companyDtos);
+            // return Ok();
+            // return companyDtos;
         }
 
         [HttpGet("{companyId}")] // api/companies/123
