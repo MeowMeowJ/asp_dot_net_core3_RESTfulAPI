@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.EntityFrameworkCore;
@@ -18,15 +19,42 @@ namespace Routine.Api.Services
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<IEnumerable<Employee>> GetEmployeesAsync(Guid companyId)
+        public async Task<IEnumerable<Employee>> GetEmployeesAsync(Guid companyId, string genderDisplay, string q)
         {
             if (companyId == Guid.Empty)
             {
                 throw new ArgumentNullException(nameof(companyId));
             }
 
-            return await _context.Employees
-                .Where(x => x.CompanyId == companyId)
+            if (string.IsNullOrWhiteSpace(genderDisplay) && string.IsNullOrWhiteSpace(q))
+            {
+                return await _context.Employees
+                    .Where(x => x.CompanyId == companyId)
+                    .OrderBy(x => x.EmployeeNo)
+                    .ToListAsync();
+            }
+
+            var items = _context.Employees.Where(x => x.CompanyId == companyId);
+
+            if (!string.IsNullOrWhiteSpace(genderDisplay))
+            {
+                genderDisplay = genderDisplay.Trim();
+                // 因为需要返回的是枚举，所以要把genderStr Parse成枚举的Gender类型
+                var gender = Enum.Parse<Gender>(genderDisplay);
+
+                items = items.Where(x => x.Gender == gender);
+            }
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                q = q.Trim();
+
+                items = items.Where(x => x.EmployeeNo.Contains(q) 
+                                         || x.FirstName.Contains(q) 
+                                         || x.LastName.Contains(q));
+            }
+ 
+            return await items
                 .OrderBy(x => x.EmployeeNo)
                 .ToListAsync();
         }
