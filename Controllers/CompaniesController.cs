@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Routine.Api.Models;
 using Routine.Api.Services;
@@ -14,11 +15,13 @@ namespace Routine.Api.Controllers
     public class CompaniesController : ControllerBase
     {
         private readonly ICompanyRepository _companyRepository;
+        private readonly IMapper _mapper;
 
-        public CompaniesController(ICompanyRepository companyRepository)
+        public CompaniesController(ICompanyRepository companyRepository, IMapper mapper)
         {
             _companyRepository = companyRepository ?? 
                                  throw new ArgumentNullException(nameof(companyRepository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet]
@@ -26,16 +29,7 @@ namespace Routine.Api.Controllers
         {
             var companies = await _companyRepository.GetCompaniesAsync();
 
-            var companyDtos = new List<CompanyDto>();
-
-            foreach (var company in companies)
-            {
-                companyDtos.Add(new CompanyDto
-                {
-                    Id = company.Id,
-                    Name = company.Name
-                });
-            }
+            var companyDtos = _mapper.Map<IEnumerable<CompanyDto>>(companies);
 
             return Ok(companyDtos);
             // return Ok();
@@ -44,7 +38,7 @@ namespace Routine.Api.Controllers
 
         [HttpGet("{companyId}")] // api/companies/123
         // [Route("{companyId}")]
-        public async Task<IActionResult> GetCompany(Guid companyId)
+        public async Task<ActionResult<CompanyDto>> GetCompany(Guid companyId)
         {
             var company = await _companyRepository.GetCompanyAsync(companyId);
             if (company == null)
@@ -52,7 +46,7 @@ namespace Routine.Api.Controllers
                 return NotFound();
             }
 
-            return Ok(company);
+            return Ok(_mapper.Map<CompanyDto>(company));
         }
     }
 }

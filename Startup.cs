@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -35,7 +36,10 @@ namespace Routine.Api
                 // setup.OutputFormatters.Insert(0, new XmlDataContractSerializerOutputFormatter()); // 在第零个位置插入xml初始化器，即顺序变成了xml-json，默认的就是xml
             }).AddXmlDataContractSerializerFormatters(); // 这句话包含第二条功能，还连input的格式化器也添加了
 
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
             services.AddScoped<ICompanyRepository,CompanyRepository>();
+
             services.AddDbContext<RoutineDbContext>(options => 
                 { options.UseSqlite("Data Source=routine.db"); });
         }
