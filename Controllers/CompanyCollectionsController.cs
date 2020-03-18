@@ -68,5 +68,6 @@ namespace Routine.Api.Controllers
 
             return CreatedAtRoute(nameof(GetCompanyCollection), new { ids = idsString }, dtosToReturn);
         }
+
     }
 }
