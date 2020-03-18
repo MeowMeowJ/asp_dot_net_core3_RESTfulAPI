@@ -39,7 +39,7 @@ namespace Routine.Api.Controllers
             return Ok(employeeDtos);
         }
 
-        [HttpGet("{employeeId}")]
+        [HttpGet("{employeeId}", Name = nameof(GetEmployeeForCompany))]
         public async Task<ActionResult<EmployeeDto>> GetEmployeeForCompany(Guid companyId, Guid employeeId)
         {
             if (! await _companyRepository.CompanyExistsAsync(companyId))
@@ -57,6 +57,27 @@ namespace Routine.Api.Controllers
             var employeeDto = _mapper.Map<EmployeeDto>(employee);
 
             return Ok(employeeDto);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<EmployeeDto>> CreateEmployeeForCompany(Guid companyId, EmployeeAddDto employee)
+        {
+            if (!await _companyRepository.CompanyExistsAsync(companyId))
+            {
+                return NotFound();
+            }
+
+            var entity = _mapper.Map<Employee>(employee);
+            _companyRepository.AddEmployee(companyId, entity);
+            await _companyRepository.SaveAsync();
+
+            var dtoToReturn = _mapper.Map<EmployeeDto>(entity);
+            // return语句的作用是在响应里添加一个location的header，可以通过里面的uri获得到刚刚创建好的资源
+            return CreatedAtRoute(nameof(GetEmployeeForCompany), new
+            {
+                companyId, // 属性值和属性名相同的，可以把属性名省略
+                employeeId = dtoToReturn.Id
+            }, dtoToReturn);
         }
     }
 }
