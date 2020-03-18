@@ -6,7 +6,7 @@ using Routine.Api.ValidationAttributes;
 
 namespace Routine.Api.Models
 {
-    [EmployeeNoMustDifferentFromFirstName]
+    [EmployeeNoMustDifferentFromFirstName(ErrorMessage = "员工编号不可以与名相同！！")]
     public class EmployeeAddDto: IValidatableObject
     {
         [Display(Name = "员工号")]
