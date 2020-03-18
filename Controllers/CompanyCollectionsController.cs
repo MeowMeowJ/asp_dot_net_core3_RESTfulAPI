@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Routine.Api.Entities;
+using Routine.Api.Helpers;
 using Routine.Api.Models;
 using Routine.Api.Services;
 
@@ -23,6 +24,31 @@ namespace Routine.Api.Controllers
             _companyRepository = companyRepository ?? throw new ArgumentNullException(nameof(companyRepository));
         }
 
+        // 1,2,3,4
+        // key1=value1,key2=value2, key3=value3, key4=value4
+        [HttpGet("({ids})", Name = nameof(GetCompanyCollection))]
+        public async Task<IActionResult> GetCompanyCollection(
+            [FromRoute]
+            [ModelBinder(typeof(ArrayModelBinder))]
+            IEnumerable<Guid> ids)
+        {
+            if (ids == null)
+            {
+                return BadRequest();
+            }
+
+            var entities = await _companyRepository.GetCompaniesAsync(ids);
+
+            if (ids.Count() != entities.Count())
+            {
+                return NotFound();
+            }
+
+            var dtosToReturn = _mapper.Map<IEnumerable<CompanyDto>>(entities);
+
+            return Ok(dtosToReturn);
+        }
+
         [HttpPost]
         public async Task<ActionResult<IEnumerable<CompanyDto>>> CreateCompanyCollection(IEnumerable<CompanyAddDto> companyCollection)
         {
@@ -35,7 +61,12 @@ namespace Routine.Api.Controllers
 
             await _companyRepository.SaveAsync();
 
-            return Ok();
+
+            var dtosToReturn = _mapper.Map<IEnumerable<CompanyDto>>(companyEntities);
+
+            var idsString = string.Join(",", dtosToReturn.Select(x => x.Id));
+
+            return CreatedAtRoute(nameof(GetCompanyCollection), new { ids = idsString }, dtosToReturn);
         }
     }
 }
