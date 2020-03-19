@@ -53,6 +53,96 @@ namespace Routine.Api.Migrations
                             Id = new Guid("5efc910b-2f45-43df-afae-620d40542853"),
                             Introduction = "Fubao Company",
                             Name = "Alipapa"
+                        },
+                        new
+                        {
+                            Id = new Guid("bbdee09c-089b-4d30-bece-44df59237100"),
+                            Introduction = "From Shenzhen",
+                            Name = "Tencent"
+                        },
+                        new
+                        {
+                            Id = new Guid("6fb600c1-9011-4fd7-9234-881379716400"),
+                            Introduction = "From Beijing",
+                            Name = "Baidu"
+                        },
+                        new
+                        {
+                            Id = new Guid("5efc910b-2f45-43df-afae-620d40542800"),
+                            Introduction = "Photoshop?",
+                            Name = "Adobe"
+                        },
+                        new
+                        {
+                            Id = new Guid("bbdee09c-089b-4d30-bece-44df59237111"),
+                            Introduction = "Wow",
+                            Name = "SpaceX"
+                        },
+                        new
+                        {
+                            Id = new Guid("6fb600c1-9011-4fd7-9234-881379716411"),
+                            Introduction = "Football Club",
+                            Name = "AC Milan"
+                        },
+                        new
+                        {
+                            Id = new Guid("5efc910b-2f45-43df-afae-620d40542811"),
+                            Introduction = "From Jiangsu",
+                            Name = "Suning"
+                        },
+                        new
+                        {
+                            Id = new Guid("bbdee09c-089b-4d30-bece-44df59237122"),
+                            Introduction = "Blocked",
+                            Name = "Twitter"
+                        },
+                        new
+                        {
+                            Id = new Guid("6fb600c1-9011-4fd7-9234-881379716422"),
+                            Introduction = "Blocked",
+                            Name = "Youtube"
+                        },
+                        new
+                        {
+                            Id = new Guid("5efc910b-2f45-43df-afae-620d40542822"),
+                            Introduction = "- -",
+                            Name = "360"
+                        },
+                        new
+                        {
+                            Id = new Guid("bbdee09c-089b-4d30-bece-44df59237133"),
+                            Introduction = "Brothers",
+                            Name = "Jingdong"
+                        },
+                        new
+                        {
+                            Id = new Guid("6fb600c1-9011-4fd7-9234-881379716433"),
+                            Introduction = "Music?",
+                            Name = "NetEase"
+                        },
+                        new
+                        {
+                            Id = new Guid("5efc910b-2f45-43df-afae-620d40542833"),
+                            Introduction = "Store",
+                            Name = "Amazon"
+                        },
+                        new
+                        {
+                            Id = new Guid("bbdee09c-089b-4d30-bece-44df59237144"),
+                            Introduction = "Not Exists?",
+                            Name = "AOL"
+                        },
+                        new
+                        {
+                            Id = new Guid("6fb600c1-9011-4fd7-9234-881379716444"),
+                            Introduction = "Who?",
+                            Name = "Yahoo"
+                        },
+                        new
+                        {
+                            Id = new Guid("5efc910b-2f45-43df-afae-620d40542844"),
+                            Introduction = "Is it a company?",
+                            Name = "Firefox"
                         });
                 });
 
@@ -160,7 +250,7 @@ namespace Routine.Api.Migrations
                     b.HasOne("Routine.Api.Entities.Company", "Company")
                         .WithMany("Employees")
                         .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

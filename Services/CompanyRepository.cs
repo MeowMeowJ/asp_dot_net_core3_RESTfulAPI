@@ -110,11 +110,6 @@ namespace Routine.Api.Services
                 throw new ArgumentNullException(nameof(parameters));
             }
 
-            if (string.IsNullOrWhiteSpace(parameters.CompanyName) && string.IsNullOrWhiteSpace(parameters.SearchTerm))
-            {
-                return await _context.Companies.ToListAsync();
-            }
-
             var queryExpression = _context.Companies as IQueryable<Company>;
             if (!string.IsNullOrWhiteSpace(parameters.CompanyName))
             {
@@ -128,6 +123,10 @@ namespace Routine.Api.Services
                 queryExpression = queryExpression.Where(x =>
                     x.Name.Contains(parameters.SearchTerm) || x.Introduction.Contains(parameters.SearchTerm));
             }
+
+            queryExpression = queryExpression.Skip(parameters.PageSize * (parameters.PageNumber - 1))
+                .Take(parameters.PageSize);
+
             return await queryExpression.ToListAsync();
         }
 
