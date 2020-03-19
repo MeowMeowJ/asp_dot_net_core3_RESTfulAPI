@@ -9,8 +9,8 @@ using Routine.Api.Data;
 namespace Routine.Api.Migrations
 {
     [DbContext(typeof(RoutineDbContext))]
-    [Migration("20200319050443_Initial")]
-    partial class Initial
+    [Migration("20200319130219_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -24,12 +24,24 @@ namespace Routine.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Country")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(50);
+
+                    b.Property<string>("Industry")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(50);
+
                     b.Property<string>("Introduction")
                         .HasColumnType("TEXT")
                         .HasMaxLength(500);
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("Product")
                         .HasColumnType("TEXT")
                         .HasMaxLength(100);
 
@@ -41,110 +53,164 @@ namespace Routine.Api.Migrations
                         new
                         {
                             Id = new Guid("bbdee09c-089b-4d30-bece-44df5923716c"),
+                            Country = "USA",
+                            Industry = "Software",
                             Introduction = "Great Company",
-                            Name = "Microsoft"
+                            Name = "Microsoft",
+                            Product = "Software"
                         },
                         new
                         {
                             Id = new Guid("6fb600c1-9011-4fd7-9234-881379716440"),
+                            Country = "USA",
+                            Industry = "Internet",
                             Introduction = "Don't be evil",
-                            Name = "Google"
+                            Name = "Google",
+                            Product = "Software"
                         },
                         new
                         {
                             Id = new Guid("5efc910b-2f45-43df-afae-620d40542853"),
+                            Country = "China",
+                            Industry = "Internet",
                             Introduction = "Fubao Company",
-                            Name = "Alipapa"
+                            Name = "Alipapa",
+                            Product = "Software"
                         },
                         new
                         {
                             Id = new Guid("bbdee09c-089b-4d30-bece-44df59237100"),
+                            Country = "China",
+                            Industry = "ECommerce",
                             Introduction = "From Shenzhen",
-                            Name = "Tencent"
+                            Name = "Tencent",
+                            Product = "Software"
                         },
                         new
                         {
                             Id = new Guid("6fb600c1-9011-4fd7-9234-881379716400"),
+                            Country = "China",
+                            Industry = "Internet",
                             Introduction = "From Beijing",
-                            Name = "Baidu"
+                            Name = "Baidu",
+                            Product = "Software"
                         },
                         new
                         {
                             Id = new Guid("5efc910b-2f45-43df-afae-620d40542800"),
+                            Country = "USA",
+                            Industry = "Software",
                             Introduction = "Photoshop?",
-                            Name = "Adobe"
+                            Name = "Adobe",
+                            Product = "Software"
                         },
                         new
                         {
                             Id = new Guid("bbdee09c-089b-4d30-bece-44df59237111"),
+                            Country = "USA",
+                            Industry = "Technology",
                             Introduction = "Wow",
-                            Name = "SpaceX"
+                            Name = "SpaceX",
+                            Product = "Rocket"
                         },
                         new
                         {
                             Id = new Guid("6fb600c1-9011-4fd7-9234-881379716411"),
+                            Country = "Italy",
+                            Industry = "Football",
                             Introduction = "Football Club",
-                            Name = "AC Milan"
+                            Name = "AC Milan",
+                            Product = "Football Match"
                         },
                         new
                         {
                             Id = new Guid("5efc910b-2f45-43df-afae-620d40542811"),
+                            Country = "China",
+                            Industry = "ECommerce",
                             Introduction = "From Jiangsu",
-                            Name = "Suning"
+                            Name = "Suning",
+                            Product = "Goods"
                         },
                         new
                         {
                             Id = new Guid("bbdee09c-089b-4d30-bece-44df59237122"),
+                            Country = "USA",
+                            Industry = "Internet",
                             Introduction = "Blocked",
-                            Name = "Twitter"
+                            Name = "Twitter",
+                            Product = "Tweets"
                         },
                         new
                         {
                             Id = new Guid("6fb600c1-9011-4fd7-9234-881379716422"),
+                            Country = "USA",
+                            Industry = "Internet",
                             Introduction = "Blocked",
-                            Name = "Youtube"
+                            Name = "Youtube",
+                            Product = "Videos"
                         },
                         new
                         {
                             Id = new Guid("5efc910b-2f45-43df-afae-620d40542822"),
+                            Country = "China",
+                            Industry = "Security",
                             Introduction = "- -",
-                            Name = "360"
+                            Name = "360",
+                            Product = "Security Product"
                         },
                         new
                         {
                             Id = new Guid("bbdee09c-089b-4d30-bece-44df59237133"),
+                            Country = "China",
+                            Industry = "ECommerce",
                             Introduction = "Brothers",
-                            Name = "Jingdong"
+                            Name = "Jingdong",
+                            Product = "Goods"
                         },
                         new
                         {
                             Id = new Guid("6fb600c1-9011-4fd7-9234-881379716433"),
+                            Country = "China",
+                            Industry = "Internet",
                             Introduction = "Music?",
-                            Name = "NetEase"
+                            Name = "NetEase",
+                            Product = "Songs"
                         },
                         new
                         {
                             Id = new Guid("5efc910b-2f45-43df-afae-620d40542833"),
+                            Country = "USA",
+                            Industry = "ECommerce",
                             Introduction = "Store",
-                            Name = "Amazon"
+                            Name = "Amazon",
+                            Product = "Books"
                         },
                         new
                         {
                             Id = new Guid("bbdee09c-089b-4d30-bece-44df59237144"),
+                            Country = "USA",
+                            Industry = "Internet",
                             Introduction = "Not Exists?",
-                            Name = "AOL"
+                            Name = "AOL",
+                            Product = "Website"
                         },
                         new
                         {
                             Id = new Guid("6fb600c1-9011-4fd7-9234-881379716444"),
+                            Country = "USA",
+                            Industry = "Internet",
                             Introduction = "Who?",
-                            Name = "Yahoo"
+                            Name = "Yahoo",
+                            Product = "Mail"
                         },
                         new
                         {
                             Id = new Guid("5efc910b-2f45-43df-afae-620d40542844"),
+                            Country = "USA",
+                            Industry = "Internet",
                             Introduction = "Is it a company?",
-                            Name = "Firefox"
+                            Name = "Firefox",
+                            Product = "Browser"
                         });
                 });
 
