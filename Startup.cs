@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Serialization;
 using Routine.Api.Data;
 using Routine.Api.Services;
 
@@ -36,7 +37,11 @@ namespace Routine.Api
                 setup.ReturnHttpNotAcceptable = true; // 设为true的话，请求格式不匹配可以返回406状态码
                 //setup.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter()); // 在输出格式化器中添加xml格式化器，即增加返回类型为xml的支持，但默认格式依旧是Json，Add是Add到后面
                 // setup.OutputFormatters.Insert(0, new XmlDataContractSerializerOutputFormatter()); // 在第零个位置插入xml初始化器，即顺序变成了xml-json，默认的就是xml
-            }).AddXmlDataContractSerializerFormatters()
+            }).AddNewtonsoftJson(setup =>
+                {
+                    setup.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                })
+                .AddXmlDataContractSerializerFormatters()
                 .ConfigureApiBehaviorOptions(setup =>
                 {
                     setup.InvalidModelStateResponseFactory = context =>
