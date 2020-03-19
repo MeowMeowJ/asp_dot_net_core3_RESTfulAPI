@@ -70,6 +70,8 @@ namespace Routine.Api
 
             services.AddDbContext<RoutineDbContext>(options => 
                 { options.UseSqlite("Data Source=routine.db"); });
+
+            services.AddTransient<IPropertyMappingService, PropertyMappingService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
