@@ -15,6 +15,7 @@ namespace Routine.Api.Profiles
 
             CreateMap<CompanyAddDto, Company>();
             CreateMap<Company, CompanyFullDto>();
+            CreateMap<CompanyAddWithBankruptTimeDto, Company>();
         }
     }
 }

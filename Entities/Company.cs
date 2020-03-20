@@ -12,6 +12,8 @@ namespace Routine.Api.Entities
         public string Product { get; set; }
         public string Introduction { get; set; }
 
+        public DateTime? BankruptTime { get; set; }
+
         public ICollection<Employee> Employees { get; set; }
     }
 }

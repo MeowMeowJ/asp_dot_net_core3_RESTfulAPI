@@ -13,5 +13,7 @@ namespace Routine.Api.Models
         public string Industry { get; set; }
         public string Product { get; set; }
         public string Introduction { get; set; }
+
+        public DateTime? BankruptTime { get; set; }
     }
 }
