@@ -17,6 +17,7 @@ namespace Routine.Api.Controllers
 {
     [ApiController]
     [Route("api/companies/{companyId}/employees")]
+    [ResponseCache(CacheProfileName = "120sCacheProfile")]
     public class EmployeesController : ControllerBase
     {
         private readonly ICompanyRepository _companyRepository;
@@ -45,6 +46,7 @@ namespace Routine.Api.Controllers
         }
 
         [HttpGet("{employeeId}", Name = nameof(GetEmployeeForCompany))]
+        [ResponseCache(Duration = 60)]
         public async Task<ActionResult<EmployeeDto>> GetEmployeeForCompany(Guid companyId, Guid employeeId)
         {
             if (! await _companyRepository.CompanyExistsAsync(companyId))

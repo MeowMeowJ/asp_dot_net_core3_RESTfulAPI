@@ -32,11 +32,17 @@ namespace Routine.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddResponseCaching();
+
             services.AddControllers(setup =>
             {
                 setup.ReturnHttpNotAcceptable = true; // 设为true的话，请求格式不匹配可以返回406状态码
                 //setup.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter()); // 在输出格式化器中添加xml格式化器，即增加返回类型为xml的支持，但默认格式依旧是Json，Add是Add到后面
                 // setup.OutputFormatters.Insert(0, new XmlDataContractSerializerOutputFormatter()); // 在第零个位置插入xml初始化器，即顺序变成了xml-json，默认的就是xml
+                setup.CacheProfiles.Add("120sCacheProfile", new CacheProfile
+                {
+                    Duration = 120
+                });
             }).AddNewtonsoftJson(setup =>
                 {
                     setup.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
@@ -102,6 +108,8 @@ namespace Routine.Api
                     });
                 });
             }
+
+            app.UseResponseCaching();
 
             app.UseRouting();
 
