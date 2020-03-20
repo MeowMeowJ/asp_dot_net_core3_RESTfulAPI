@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 using Routine.Api.DtoParameters;
 using Routine.Api.Entities;
 using Routine.Api.Helpers;
@@ -36,8 +37,14 @@ namespace Routine.Api.Controllers
 
         [HttpGet(Name = nameof(GetCompanies))]
         [HttpHead]
-        public async Task<IActionResult> GetCompanies([FromQuery]CompanyDtoParameters parameters)
+        public async Task<IActionResult> GetCompanies([FromQuery]CompanyDtoParameters parameters, 
+            [FromHeader(Name = "Accept")] string mediaType)
         {
+            if (!MediaTypeHeaderValue.TryParse(mediaType, out MediaTypeHeaderValue parsedMediaType))
+            {
+                return BadRequest();
+            }
+
             if (!_propertyMappingService.ValidMappingExistsFor<CompanyDto, Company>(parameters.OrderBy))
             {
                 return BadRequest();
@@ -67,30 +74,55 @@ namespace Routine.Api.Controllers
 
             var shapedData = companyDtos.ShapeData(parameters.Fields);
 
-            var links = CreateLinksForCompany(parameters, companies.HasPrevious, companies.HasNext);
 
-            // 返回 {value : [], links}
-            var shapedCompaniesWithLinks = shapedData.Select(c =>
+
+            if (parsedMediaType.MediaType == "application/vnd.company.hateoas+json")
+            {
+                var links = CreateLinksForCompany(parameters, companies.HasPrevious, companies.HasNext);
+
+                // 返回 {value : [], links}
+                var shapedCompaniesWithLinks = shapedData.Select(c =>
+                {
+                    var companyDict = c as IDictionary<string, object>;
+                    var companyLinks = CreateLinksForCompany((Guid)companyDict["Id"], null);
+                    companyDict.Add("links", companyLinks);
+                    return companyDict;
+                });
+
+                var linkedCollectionResource = new
+                {
+                    value = shapedCompaniesWithLinks,
+                    links
+                };
+
+                return Ok(linkedCollectionResource);
+            }
+
+            return Ok(shapedData.Select(c =>
             {
                 var companyDict = c as IDictionary<string, object>;
                 var companyLinks = CreateLinksForCompany((Guid)companyDict["Id"], null);
                 companyDict.Add("links", companyLinks);
                 return companyDict;
-            });
-
-            var linkedCollectionResource = new
-            {
-                value = shapedCompaniesWithLinks,
-                links
-            };
-
-            return Ok(linkedCollectionResource);
+            }));
         }
 
+        [Produces("application/json",
+            "application/vnd.company.hateoas+json",
+            "application/vnd.company.company.friendly+json",
+            "application/vnd.company.company.friendly.hateoas+json",
+            "application/vnd.company.company.full+json",
+            "application/vnd.company.company.full.hateoas+json")]
         [HttpGet("{companyId}", Name = nameof(GetCompany))] // api/companies/123
         // [Route("{companyId}")]
-        public async Task<IActionResult> GetCompany(Guid companyId, string fields)
+        public async Task<IActionResult> GetCompany(Guid companyId, string fields, 
+            [FromHeader(Name = "Accept")] string mediaType)
         {
+            if (!MediaTypeHeaderValue.TryParse(mediaType, out MediaTypeHeaderValue parsedMediaType))
+            {
+                return BadRequest();
+            }
+
             if (!_propertyCheckerService.TypeHasProperties<CompanyDto>(fields))
             {
                 return BadRequest();
@@ -102,13 +134,54 @@ namespace Routine.Api.Controllers
                 return NotFound();
             }
 
-            var links = CreateLinksForCompany(companyId, fields);
+            var includeLinks =
+                parsedMediaType.SubTypeWithoutSuffix.EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
 
-            var linkedDict = _mapper.Map<CompanyDto>(company).ShapeData(fields) as IDictionary<string, object>;
-            
-            linkedDict.Add("links", links);
+            IEnumerable<LinkDto> myLinks = new List<LinkDto>();
 
-            return Ok(linkedDict);
+            if (includeLinks)
+            {
+                myLinks = CreateLinksForCompany(companyId, fields);
+            }
+
+            var primaryMediaType = includeLinks
+                ? parsedMediaType.SubTypeWithoutSuffix.Substring(0, 
+                    parsedMediaType.SubTypeWithoutSuffix.Length - 8)
+                : parsedMediaType.SubTypeWithoutSuffix;
+
+            if (primaryMediaType == "vnd.company.company.full")
+            {
+                var full = _mapper.Map<CompanyFullDto>(company).ShapeData(fields) as IDictionary<string, object>;
+
+                if (includeLinks)
+                {
+                    full.Add("links", myLinks);
+                }
+
+                return Ok(full);
+            }
+
+            var friendly = _mapper.Map<CompanyDto>(company).ShapeData(fields) as IDictionary<string, object>;
+
+            if (includeLinks)
+            {
+                friendly.Add("links", myLinks);
+            }
+
+            return Ok(friendly);
+
+            //if (parsedMediaType.MediaType == "application/vnd.company.hateoas+json")
+            //{
+            //    var links = CreateLinksForCompany(companyId, fields);
+
+            //    var linkedDict = _mapper.Map<CompanyDto>(company).ShapeData(fields) as IDictionary<string, object>;
+
+            //    linkedDict.Add("links", links);
+
+            //    return Ok(linkedDict);
+            //}
+
+            //return Ok(_mapper.Map<CompanyDto>(company).ShapeData(fields));
         }
 
         [HttpPost(nameof(CreateCompany))]

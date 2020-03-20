@@ -64,6 +64,14 @@ namespace Routine.Api
                     };
                 }); // 这句话包含第二条功能，还连input的格式化器也添加了
 
+            services.Configure<MvcOptions>(config =>
+            {
+                var newtonSoftJsonOutputFormatter =
+                    config.OutputFormatters.OfType<NewtonsoftJsonOutputFormatter>()?.FirstOrDefault();
+
+                newtonSoftJsonOutputFormatter?.SupportedMediaTypes.Add("application/vnd.company.hateoas+json");
+            });
+
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddScoped<ICompanyRepository,CompanyRepository>();

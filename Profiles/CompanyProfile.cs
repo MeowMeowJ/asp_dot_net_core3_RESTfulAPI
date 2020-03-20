@@ -14,6 +14,7 @@ namespace Routine.Api.Profiles
                     opt => opt.MapFrom(src => src.Name));
 
             CreateMap<CompanyAddDto, Company>();
+            CreateMap<Company, CompanyFullDto>();
         }
     }
 }
