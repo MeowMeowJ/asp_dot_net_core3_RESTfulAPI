@@ -50,22 +50,12 @@ namespace Routine.Api.Controllers
 
             var companies = await _companyRepository.GetCompaniesAsync(parameters);
 
-            var previousPageLink = companies.HasPrevious
-                ? CreateCompaniesResourceUri(parameters, ResourceUriType.PreviousPage)
-                : null;
-
-            var nextPageLink = companies.HasNext 
-                ? CreateCompaniesResourceUri(parameters, ResourceUriType.NextPage) 
-                : null;
-
             var paginationMetadata = new
             {
                 totalCount = companies.TotalCount,
                 pageSize = companies.PageSize,
                 currentPage = companies.CurrentPage,
-                totalPages = companies.TotalPages,
-                previousPageLink,
-                nextPageLink
+                totalPages = companies.TotalPages
             };
 
             Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(paginationMetadata, new JsonSerializerOptions
@@ -75,9 +65,26 @@ namespace Routine.Api.Controllers
 
             var companyDtos = _mapper.Map<IEnumerable<CompanyDto>>(companies);
 
-            return Ok(companyDtos.ShapeData(parameters.Fields));
-            // return Ok();
-            // return companyDtos;
+            var shapedData = companyDtos.ShapeData(parameters.Fields);
+
+            var links = CreateLinksForCompany(parameters, companies.HasPrevious, companies.HasNext);
+
+            // 返回 {value : [], links}
+            var shapedCompaniesWithLinks = shapedData.Select(c =>
+            {
+                var companyDict = c as IDictionary<string, object>;
+                var companyLinks = CreateLinksForCompany((Guid)companyDict["Id"], null);
+                companyDict.Add("links", companyLinks);
+                return companyDict;
+            });
+
+            var linkedCollectionResource = new
+            {
+                value = shapedCompaniesWithLinks,
+                links
+            };
+
+            return Ok(linkedCollectionResource);
         }
 
         [HttpGet("{companyId}", Name = nameof(GetCompany))] // api/companies/123
@@ -104,7 +111,7 @@ namespace Routine.Api.Controllers
             return Ok(linkedDict);
         }
 
-        [HttpPost]
+        [HttpPost(nameof(CreateCompany))]
         public async Task<ActionResult<CompanyDto>> CreateCompany(CompanyAddDto company)
         {
             var entity = _mapper.Map<Company>(company);
@@ -210,6 +217,34 @@ namespace Routine.Api.Controllers
             links.Add(new LinkDto(Url.Link(nameof(EmployeesController.CreateEmployeeForCompany), new {companyId}), "create_employee_for_company", "POST"));
 
             links.Add(new LinkDto(Url.Link(nameof(EmployeesController.GetEmployeesForCompany), new {companyId}), "employees", "GET"));
+
+            return links;
+        }
+
+        private IEnumerable<LinkDto> CreateLinksForCompany(CompanyDtoParameters parameters, bool hasPrevious, bool hasNext)
+        {
+            var links = new List<LinkDto>();
+
+            links.Add(new LinkDto(
+                CreateCompaniesResourceUri(parameters, ResourceUriType.CurrentPage), 
+                "self", 
+                "GET"));
+
+            if (hasPrevious)
+            {
+                links.Add(new LinkDto(
+                    CreateCompaniesResourceUri(parameters, ResourceUriType.PreviousPage),
+                    "previous_page",
+                    "GET"));
+            }
+
+            if (hasNext)
+            {
+                links.Add(new LinkDto(
+                    CreateCompaniesResourceUri(parameters, ResourceUriType.NextPage),
+                    "next_page",
+                    "GET"));
+            }
 
             return links;
         }
