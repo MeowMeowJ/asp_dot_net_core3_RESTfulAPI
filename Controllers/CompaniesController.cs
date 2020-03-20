@@ -82,7 +82,7 @@ namespace Routine.Api.Controllers
 
         [HttpGet("{companyId}", Name = nameof(GetCompany))] // api/companies/123
         // [Route("{companyId}")]
-        public async Task<ActionResult<CompanyDto>> GetCompany(Guid companyId, string fields)
+        public async Task<IActionResult> GetCompany(Guid companyId, string fields)
         {
             if (!_propertyCheckerService.TypeHasProperties<CompanyDto>(fields))
             {
@@ -95,7 +95,13 @@ namespace Routine.Api.Controllers
                 return NotFound();
             }
 
-            return Ok(_mapper.Map<CompanyDto>(company).ShapeData(fields));
+            var links = CreateLinksForCompany(companyId, fields);
+
+            var linkedDict = _mapper.Map<CompanyDto>(company).ShapeData(fields) as IDictionary<string, object>;
+            
+            linkedDict.Add("links", links);
+
+            return Ok(linkedDict);
         }
 
         [HttpPost]
@@ -107,10 +113,16 @@ namespace Routine.Api.Controllers
 
             var returnDto = _mapper.Map<CompanyDto>(entity);
 
-            return CreatedAtRoute(nameof(GetCompany), new { companyId = returnDto.Id }, returnDto);
+            var links = CreateLinksForCompany(returnDto.Id, null);
+
+            var linkedDict = returnDto.ShapeData(null) as IDictionary<string, object>;
+
+            linkedDict.Add("links", links);
+
+            return CreatedAtRoute(nameof(GetCompany), new { companyId = linkedDict["Id"] }, linkedDict);
         }
 
-        [HttpDelete("{companyId}")]
+        [HttpDelete("{companyId}", Name = nameof(DeleteCompany))]
         public async Task<IActionResult> DeleteCompany(Guid companyId)
         {
             var companyEntity = await _companyRepository.GetCompanyAsync(companyId);
@@ -172,6 +184,34 @@ namespace Routine.Api.Controllers
                         searchTerm = parameters.SearchTerm
                     });
             }
+        }
+
+        private IEnumerable<LinkDto> CreateLinksForCompany(Guid companyId, string fields)
+        {
+            var links = new List<LinkDto>();
+
+            if (string.IsNullOrWhiteSpace(fields))
+            {
+                links.Add(new LinkDto(Url.Link(nameof(GetCompany), new {companyId}), "self", "GET"));
+            }
+            else
+            {
+                links.Add(new LinkDto(Url.Link(nameof(GetCompany), 
+                    new { companyId, fields }), 
+                    "self", 
+                    "GET"));
+            }
+
+            links.Add(new LinkDto(Url.Link(nameof(DeleteCompany),
+                    new { companyId }),
+                "delete_company",
+                "DELETE"));
+
+            links.Add(new LinkDto(Url.Link(nameof(EmployeesController.CreateEmployeeForCompany), new {companyId}), "create_employee_for_company", "POST"));
+
+            links.Add(new LinkDto(Url.Link(nameof(EmployeesController.GetEmployeesForCompany), new {companyId}), "employees", "GET"));
+
+            return links;
         }
     }
 }
