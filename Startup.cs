@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Marvin.Cache.Headers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -32,6 +33,15 @@ namespace Routine.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpCacheHeaders(expires =>
+            {
+                expires.MaxAge = 60;
+                expires.CacheLocation = CacheLocation.Private;
+            }, validation =>
+            {
+                validation.MustRevalidate = true;
+            });
+
             services.AddResponseCaching();
 
             services.AddControllers(setup =>
@@ -109,7 +119,9 @@ namespace Routine.Api
                 });
             }
 
-            app.UseResponseCaching();
+            // app.UseResponseCaching();
+
+            app.UseHttpCacheHeaders();
 
             app.UseRouting();
 
